@@ -61,17 +61,12 @@ SETCAL		=0x25			#1 byte out CAL led status, echoes command or SLEEP
 SETSVCMODE1	=0xe0			#1 byte for service mode (SLEEP activates service mode and RUN, returns unit to normal run state), echoes command
 
 class Controller:
-
-    hiddevice = hid.device()
-
-    def __init__(self):
-        try:
-            self.hiddevice.open(vendor_id=VENDORID, product_id=PIDRUN)
-            self.hiddevice.set_nonblocking(0)
-            self.isOpen = True  # hid device open
-        except (IOError, ex):
-            print(ex)
-            self.hiddevice.close()
+    def __init__(self, index=0):
+        devices = hid.enumerate(vendor_id=VENDORID, product_id=PIDRUN)
+        self.hiddevice = hid.device()
+        self.hiddevice.open_path(devices[index]["path"])
+        self.hiddevice.set_nonblocking(0)
+        self.isOpen = True
 
     def close(self):
         # close HID device

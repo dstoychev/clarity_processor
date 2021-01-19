@@ -50,6 +50,9 @@ import aurox_clarity.controller
 
 ctrl = aurox_clarity.controller.Controller()
 
+# Specify the device's index (useful on systems with multiple Clarity devices)
+ctrl = aurox_clarity.controller.Controller(2)
+
 ctrl.switchOn()
 
 # Set the filter wheel to the 3rd position
