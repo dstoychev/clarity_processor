@@ -66,26 +66,22 @@ class Controller:
         self.hiddevice = hid.device()
         self.hiddevice.open_path(devices[index]["path"])
         self.hiddevice.set_nonblocking(0)
-        self.isOpen = True
 
     def close(self):
         # close HID device
-        if (self.isOpen):
-            self.hiddevice.close()
-            self.isOpen = False
+        self.hiddevice.close()
 
     ## Send command to HID device using cython-hidapi, all transactions are 2 way - write then read
     def sendCommand(self, command, param = 0, maxLength = 16, timeoutMs = 100):
-        if (self.isOpen):
-            if ((command==SETONOFF)|(command==SETDISK)|(command==SETFILT)|(command==SETCAL)|
-                (command == GETONOFF) |(command==GETDISK)|(command==GETFILT)|(command==GETCAL)|
-                (command == GETDOOR) |(command==GETSERIAL)|(command==FULLSTAT)) :
-                buffer = [0x00] * maxLength
-                buffer[1] = command
-                buffer[2] = param
-                result = self.hiddevice.write(buffer)
-                answer = self.hiddevice.read(maxLength, timeoutMs)
-                return answer
+        if ((command==SETONOFF)|(command==SETDISK)|(command==SETFILT)|(command==SETCAL)|
+            (command == GETONOFF) |(command==GETDISK)|(command==GETFILT)|(command==GETCAL)|
+            (command == GETDOOR) |(command==GETSERIAL)|(command==FULLSTAT)) :
+            buffer = [0x00] * maxLength
+            buffer[1] = command
+            buffer[2] = param
+            result = self.hiddevice.write(buffer)
+            answer = self.hiddevice.read(maxLength, timeoutMs)
+            return answer
         return [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
     ## Switch on Clarity
