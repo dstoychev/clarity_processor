@@ -42,6 +42,7 @@ All commands sent to a Clarity device could also get a response of `CMDERROR` wh
 * getDoor
 * getSerialNumber
 * getFullStat
+* getVersion
 
 Usage:
 

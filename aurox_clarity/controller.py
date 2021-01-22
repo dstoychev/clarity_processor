@@ -135,3 +135,7 @@ class Controller:
     def getFullStat(self):
         res = self.sendCommand(FULLSTAT)
         return [(res[1],res[2],res[3]),res[4],res[5],res[6],res[7],res[8]]
+
+    def getVersion(self):
+        res = self.sendCommand(GETVERSION)
+        return (res[1], res[2], res[3])
