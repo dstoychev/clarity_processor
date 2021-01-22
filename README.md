@@ -6,7 +6,7 @@ This package provides two Python modules for Aurox Clarity instruments -- one fo
 # Installation
 The package can be installed or uninstalled using `pip`, the standard Python package manager:
 
-    python -m pip install /path/to/clarity_processor/directory
+    python -m pip install /path/to/this/repository
     python -m pip uninstall aurox_clarity
 
 # Description
