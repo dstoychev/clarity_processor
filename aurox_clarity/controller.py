@@ -1,4 +1,5 @@
 import hid
+import threading
 
 VENDORID	=0x1F0A
 PIDRUN		=0x0088
@@ -66,6 +67,7 @@ class Controller:
         self._hiddevice = hid.device()
         self._hiddevice.open_path(devices[index]["path"])
         self._hiddevice.set_nonblocking(0)
+        self._lock = threading.Lock()
 
     def __del__(self):
         if hasattr(self, "_hiddevice"):
@@ -73,12 +75,13 @@ class Controller:
 
     ## Send command to HID device using cython-hidapi, all transactions are 2 way - write then read
     def sendCommand(self, command, param = 0, maxLength = 16, timeoutMs = 100):
-        buffer = [0x00] * maxLength
-        buffer[1] = command
-        buffer[2] = param
-        result = self._hiddevice.write(buffer)
-        answer = self._hiddevice.read(maxLength, timeoutMs)
-        return answer
+        with self._lock:
+            buffer = [0x00] * maxLength
+            buffer[1] = command
+            buffer[2] = param
+            result = self._hiddevice.write(buffer)
+            answer = self._hiddevice.read(maxLength, timeoutMs)
+            return answer
 
     ## Switch on Clarity
     def switchOn(self):
