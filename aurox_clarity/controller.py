@@ -121,9 +121,6 @@ class Controller:
 
     # Set Clarity's calibration LED on or off
     def setCalibrationLED(self, calLED):
-        if (calLED != CALOFF) & (calLED != CALON):
-            print(calLED)
-            return -1
         res = self.sendCommand(SETCAL, calLED)
         return res[0]
 
