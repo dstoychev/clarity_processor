@@ -63,21 +63,21 @@ SETSVCMODE1	=0xe0			#1 byte for service mode (SLEEP activates service mode and R
 class Controller:
     def __init__(self, index=0):
         devices = hid.enumerate(vendor_id=VENDORID, product_id=PIDRUN)
-        self.hiddevice = hid.device()
-        self.hiddevice.open_path(devices[index]["path"])
-        self.hiddevice.set_nonblocking(0)
+        self._hiddevice = hid.device()
+        self._hiddevice.open_path(devices[index]["path"])
+        self._hiddevice.set_nonblocking(0)
 
     def __del__(self):
-        if hasattr(self, "hiddevice"):
-            self.hiddevice.close()
+        if hasattr(self, "_hiddevice"):
+            self._hiddevice.close()
 
     ## Send command to HID device using cython-hidapi, all transactions are 2 way - write then read
     def sendCommand(self, command, param = 0, maxLength = 16, timeoutMs = 100):
         buffer = [0x00] * maxLength
         buffer[1] = command
         buffer[2] = param
-        result = self.hiddevice.write(buffer)
-        answer = self.hiddevice.read(maxLength, timeoutMs)
+        result = self._hiddevice.write(buffer)
+        answer = self._hiddevice.read(maxLength, timeoutMs)
         return answer
 
     ## Switch on Clarity
