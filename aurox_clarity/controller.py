@@ -1,5 +1,6 @@
 import hid
 import threading
+import typing
 
 VENDORID = 0x1F0A
 PIDRUN = 0x0088
@@ -97,7 +98,13 @@ SETSVCMODE1 = 0xE0
 
 
 class Controller:
-    def __init__(self, index=0):
+    """Control of Aurox Clarity devices.
+
+    Args:
+        index: the index of the HID, as enumerated by the hidapi library.
+    """
+
+    def __init__(self, index: int = 0):
         devices = hid.enumerate(vendor_id=VENDORID, product_id=PIDRUN)
         self._hiddevice = hid.device()
         self._hiddevice.open_path(devices[index]["path"])
@@ -108,9 +115,25 @@ class Controller:
         if hasattr(self, "_hiddevice"):
             self._hiddevice.close()
 
-    ## Send command to HID device using cython-hidapi, all transactions are
-    # 2 way - write then read
-    def sendCommand(self, command, param=0, maxLength=16, timeoutMs=100):
+    def sendCommand(
+        self,
+        command: int,
+        param: typing.Optional[int] = 0,
+        maxLength: typing.Optional[int] = 16,
+        timeoutMs: typing.Optional[int] = 100,
+    ):
+        """Send a command to the Clarity device.
+
+        Communication is via exchange of records of maximum size 16 bytes.
+        All transactions are done in two steps: first write a record, then read
+        a record. The return value is a list of the read bytes.
+
+        Args:
+            command: command byte
+            param: param byte
+            maxLength: maximum number of bytes to read
+            timeoutMs: timeout threshold in miliseconds
+        """
         with self._lock:
             buffer = [0x00] * maxLength
             buffer[1] = command
@@ -119,53 +142,65 @@ class Controller:
             answer = self._hiddevice.read(maxLength, timeoutMs)
             return answer
 
-    ## Switch on Clarity
     def switchOn(self):
+        """Switch on."""
         self.sendCommand(SETONOFF, RUN)
 
-    ## Switch off Clarity
     def switchOff(self):
+        """Switch off."""
         self.sendCommand(SETONOFF, SLEEP)
 
-    ## Get of/off status
     def getOnOff(self):
+        """Get on/off status."""
         res = self.sendCommand(GETONOFF)
         return res[1]
 
-    # Set Clarity's disk position
-    def setDiskPosition(self, newDiskPosition):
+    def setDiskPosition(self, newDiskPosition: int):
+        """Set the disk's position.
+
+        Args:
+            newDiskPosition: the new position of the disk
+        """
         self.sendCommand(SETDISK, newDiskPosition)
 
-    # Get Clarity's disk position
     def getDiskPosition(self):
+        """Get the disk's position."""
         res = self.sendCommand(GETDISK)
         return res[1]
 
-    # Set Clarity's filter position
-    def setFilterPosition(self, filterPosition):
+    def setFilterPosition(self, filterPosition: int):
+        """Set the filter cube turret's position.
+
+        Args:
+            filterPosition: the new position of the filter cube turret
+        """
         self.sendCommand(SETFILT, filterPosition)
 
-    # Get Clarity's filter position
     def getFilterPosition(self):
+        """Get the filter cube turret's position."""
         res = self.sendCommand(GETFILT)
         return res[1]
 
-    # Set Clarity's calibration LED on or off
-    def setCalibrationLED(self, calLED):
+    def setCalibrationLED(self, calLED: int):
+        """Switches the calibration LED on/off.
+
+        Args:
+            calLED: the on or off state of the LED
+        """
         self.sendCommand(SETCAL, calLED)
 
-    # Get Clarity's calibration LED status
     def getCalibrationLED(self):
+        """Get the on/off state of the calibration LED."""
         res = self.sendCommand(GETCAL)
         return res[1]
 
-    # Get Clarity's door status
     def getDoor(self):
+        """Get the open/closed state of the filter cube turret door."""
         res = self.sendCommand(GETDOOR)
         return res[1]
 
-    # Get Clarity's serial number
     def getSerialNumber(self):
+        """Get the device's serial number."""
         res = self.sendCommand(GETSERIAL)
         return (
             (res[4] // 16) * 10000000
@@ -178,8 +213,11 @@ class Controller:
             + (res[1] % 16)
         )
 
-    # Returns 10 bytes Firmware VERSION[3], ONOFF, DOOR, DISK, FILT, CAL
     def getFullStat(self):
+        """Get the full state of the device.
+
+        Returns 8 bytes: VERSION[3], ONOFF, DOOR, DISK, FILT, CALIB.
+        """
         res = self.sendCommand(FULLSTAT)
         return [
             (res[1], res[2], res[3]),
@@ -191,5 +229,6 @@ class Controller:
         ]
 
     def getVersion(self):
+        """Get the firmware version of the device."""
         res = self.sendCommand(GETVERSION)
         return (res[1], res[2], res[3])

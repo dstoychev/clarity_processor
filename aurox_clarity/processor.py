@@ -1,8 +1,15 @@
 import numpy as np
 import cv2
+import typing
 
 
 class Processor:
+    """Processing of image data obtained through Aurox Clarity devices.
+
+    Args:
+        cal_img: image of the calibration pattern.
+    """
+
     # Setup SimpleBlobDetector parameters - constant, so shared between
     # instances.
     _params = cv2.SimpleBlobDetector_Params()
@@ -35,7 +42,7 @@ class Processor:
     _detector = cv2.SimpleBlobDetector_create(_params)
 
     @classmethod
-    def _find_spots(cls, img, border=5):
+    def _find_spots(cls, img: np.ndarray, border: typing.Optional[int] = 5):
         """Find all spots in img, excluding those within border of the edges.
 
         Parameters
@@ -64,7 +71,7 @@ class Processor:
         ]
 
     @staticmethod
-    def _find_penrose(pos):
+    def _find_penrose(pos: np.ndarray):
         """Find Penrose groups in a set of spots.
 
         Parameters
@@ -111,7 +118,7 @@ class Processor:
             c_offset[i] = np.sum(pos[neighbours] - pos[idx], axis=0)
         return (dmid, pos6, c_offset)
 
-    def __init__(self, cal_img):
+    def __init__(self, cal_img: np.ndarray):
         self.width = int(np.size(cal_img, 1) / 2)
         self.height = np.size(cal_img, 0)
 
@@ -222,11 +229,16 @@ class Processor:
         self.defX = cv2.UMat(self.defXcpu)
         self.defY = cv2.UMat(self.defYcpu)
 
-    def process(self, img, sub_factor=1.0):
-        # Takes 1 combined numpy (Mat) array and converts to UMat on the fly
-        # from numpy subimages OPENCV transparent interface will use OPENCL for
-        # processing
-        # Approx 9.2 ms processing time on macbook pro (i7 + Intel Iris Pro)
+    def process(
+        self, img: np.ndarray, sub_factor: typing.Optional[float] = 1.0
+    ):
+        """Process image data.
+
+        Takes 1 combined numpy (Mat) array and converts to UMat on the fly
+        from numpy subimages OPENCV transparent interface will use OPENCL for
+        processing.
+        Approx 9.2 ms processing time on macbook pro (i7 + Intel Iris Pro)
+        """
         result = cv2.subtract(
             cv2.UMat(img[:, 0 : self.width]),
             cv2.remap(
@@ -240,11 +252,19 @@ class Processor:
         )
         return result
 
-    def process_gpu1(self, img_l, img_r, sub_factor=1.0):
-        # Takes 2 UMat images as arguments,
-        # OPENCV transparent interface will use OPENCL for processing
-        # Approx 2.8 ms processing time on macbook pro (i7 + Intel Iris Pro),
-        # but your images need to be separate UMats already
+    def process_gpu1(
+        self,
+        img_l: cv2.UMat,
+        img_r: cv2.UMat,
+        sub_factor: typing.Optional[float] = 1.0,
+    ):
+        """Process image data.
+
+        Takes 2 UMat images as arguments,
+        OPENCV transparent interface will use OPENCL for processing
+        Approx 2.8 ms processing time on macbook pro (i7 + Intel Iris Pro),
+        but your images need to be separate UMats already
+        """
         # result = cv2.subtract(
         #     img_l,
         #     cv2.remap(
@@ -270,12 +290,17 @@ class Processor:
         )
         return result
 
-    def process_gpu2(self, img, sub_factor=1.0):
-        # Takes 1 combined numpy (Mat) array and converts to UMat on the fly
-        # Converts combined image to UMat on gpu then transparent interface
-        # produces 2 sub image UMats in OPENCL
-        # OPENCV transparent interface will use OPENCL for processing
-        # Approx 3.2 ms processing time on macbook pro (i7 + Intel Iris Pro)
+    def process_gpu2(
+        self, img: np.ndarray, sub_factor: typing.Optional[float] = 1.0
+    ):
+        """Process image data.
+
+        Takes 1 combined numpy (Mat) array and converts to UMat on the fly
+        Converts combined image to UMat on gpu then transparent interface
+        produces 2 sub image UMats in OPENCL
+        OPENCV transparent interface will use OPENCL for processing
+        Approx 3.2 ms processing time on macbook pro (i7 + Intel Iris Pro)
+        """
         uimg = cv2.UMat(img)
         img_l = cv2.UMat(uimg, (0, self.height), (0, self.width))
         img_r = cv2.UMat(uimg, (0, self.height), (self.width, 2 * self.width))
@@ -292,13 +317,18 @@ class Processor:
         )
         return result
 
-    def process_gpu3(self, img, sub_factor=1.0):
-        # Takes 1 combined numpy (Mat) array and converts to UMat on the fly
-        # Converts combined image to UMat on gpu then transparent interface
-        # produces 2 sub image UMats in OPENCL
-        # OPENCV transparent interface will use OPENCL for processing, uses
-        # scaleAdd routine for subtraction step
-        # Approx 2.7 ms processing time on macbook pro (i7 + Intel Iris Pro)
+    def process_gpu3(
+        self, img: np.ndarray, sub_factor: typing.Optional[float] = 1.0
+    ):
+        """Process image data.
+
+        Takes 1 combined numpy (Mat) array and converts to UMat on the fly
+        Converts combined image to UMat on gpu then transparent interface
+        produces 2 sub image UMats in OPENCL
+        OPENCV transparent interface will use OPENCL for processing, uses
+        scaleAdd routine for subtraction step
+        Approx 2.7 ms processing time on macbook pro (i7 + Intel Iris Pro)
+        """
         uimg = cv2.UMat(img)
         img_l = cv2.UMat(uimg, (0, self.height), (0, self.width))
         img_r = cv2.UMat(uimg, (0, self.height), (self.width, 2 * self.width))
@@ -316,11 +346,16 @@ class Processor:
         )
         return result
 
-    def process_cpu(self, img, sub_factor=1.0):
-        # Takes 1 combined numpy (Mat) array and converts to UMat on the fly
-        # from numpy subimages
-        # OPENCV transparent interface will use OPENCL for processing
-        # Approx 7.2 ms processing time on macbook pro (i7 + Intel Iris Pro)
+    def process_cpu(
+        self, img: np.ndarray, sub_factor: typing.Optional[float] = 1.0
+    ):
+        """Process image data.
+
+        Takes 1 combined numpy (Mat) array and converts to UMat on the fly
+        from numpy subimages
+        OPENCV transparent interface will use OPENCL for processing
+        Approx 7.2 ms processing time on macbook pro (i7 + Intel Iris Pro)
+        """
         result = cv2.subtract(
             img[:, 0 : self.width],
             cv2.remap(
@@ -334,11 +369,16 @@ class Processor:
         )
         return result
 
-    def process_cpu1(self, img, sub_factor=1.0):
-        # Takes 1 combined numpy (Mat) array and converts to UMat on the fly
-        # from numpy subimages
-        # OPENCV transparent interface will use OPENCL for processing
-        # Approx 7.2 ms processing time on macbook pro (i7 + Intel Iris Pro)
+    def process_cpu1(
+        self, img: np.ndarray, sub_factor: typing.Optional[float] = 1.0
+    ):
+        """Process image data.
+
+        Takes 1 combined numpy (Mat) array and converts to UMat on the fly
+        from numpy subimages
+        OPENCV transparent interface will use OPENCL for processing
+        Approx 7.2 ms processing time on macbook pro (i7 + Intel Iris Pro)
+        """
         result = cv2.scaleAdd(
             cv2.remap(
                 img[:, self.width :],
