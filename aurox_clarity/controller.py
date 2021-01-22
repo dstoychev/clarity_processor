@@ -67,9 +67,9 @@ class Controller:
         self.hiddevice.open_path(devices[index]["path"])
         self.hiddevice.set_nonblocking(0)
 
-    def close(self):
-        # close HID device
-        self.hiddevice.close()
+    def __del__(self):
+        if hasattr(self, "hiddevice"):
+            self.hiddevice.close()
 
     ## Send command to HID device using cython-hidapi, all transactions are 2 way - write then read
     def sendCommand(self, command, param = 0, maxLength = 16, timeoutMs = 100):
