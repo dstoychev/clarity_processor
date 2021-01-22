@@ -73,16 +73,12 @@ class Controller:
 
     ## Send command to HID device using cython-hidapi, all transactions are 2 way - write then read
     def sendCommand(self, command, param = 0, maxLength = 16, timeoutMs = 100):
-        if ((command==SETONOFF)|(command==SETDISK)|(command==SETFILT)|(command==SETCAL)|
-            (command == GETONOFF) |(command==GETDISK)|(command==GETFILT)|(command==GETCAL)|
-            (command == GETDOOR) |(command==GETSERIAL)|(command==FULLSTAT)) :
-            buffer = [0x00] * maxLength
-            buffer[1] = command
-            buffer[2] = param
-            result = self.hiddevice.write(buffer)
-            answer = self.hiddevice.read(maxLength, timeoutMs)
-            return answer
-        return [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        buffer = [0x00] * maxLength
+        buffer[1] = command
+        buffer[2] = param
+        result = self.hiddevice.write(buffer)
+        answer = self.hiddevice.read(maxLength, timeoutMs)
+        return answer
 
     ## Switch on Clarity
     def switchOn(self):
