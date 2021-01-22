@@ -82,13 +82,11 @@ class Controller:
 
     ## Switch on Clarity
     def switchOn(self):
-        res = self.sendCommand(SETONOFF, RUN)
-        return res[0]
+        self.sendCommand(SETONOFF, RUN)
 
     ## Switch off Clarity
     def switchOff(self):
-        res = self.sendCommand(SETONOFF, SLEEP)
-        return res[0]
+        self.sendCommand(SETONOFF, SLEEP)
 
     ## Get of/off status
     def getOnOff(self):
@@ -97,10 +95,7 @@ class Controller:
 
     # Set Clarity's disk position
     def setDiskPosition(self, newDiskPosition):
-        if (newDiskPosition >= DSKPOS0) & (newDiskPosition <= DSKPOS3):
-            res = self.sendCommand(SETDISK, newDiskPosition)
-            return res[0]
-        return DSKERR
+        self.sendCommand(SETDISK, newDiskPosition)
 
     # Get Clarity's disk position
     def getDiskPosition(self):
@@ -109,10 +104,7 @@ class Controller:
 
     # Set Clarity's filter position
     def setFilterPosition(self, filterPosition) :
-        if (filterPosition >= FLTPOS1) & (filterPosition <= FLTPOS4):
-            res = self.sendCommand(SETFILT, filterPosition)
-            return res[0]
-        return FLTERR
+        self.sendCommand(SETFILT, filterPosition)
 
     # Get Clarity's filter position
     def getFilterPosition(self):
@@ -121,8 +113,7 @@ class Controller:
 
     # Set Clarity's calibration LED on or off
     def setCalibrationLED(self, calLED):
-        res = self.sendCommand(SETCAL, calLED)
-        return res[0]
+        self.sendCommand(SETCAL, calLED)
 
     # Get Clarity's calibration LED status
     def getCalibrationLED(self):
