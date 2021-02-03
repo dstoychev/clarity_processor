@@ -20,11 +20,11 @@ DOOROPEN = 0x02
 
 # disk out of beam path, wide field
 DSKPOS0 = 0x00
-# disk pos 1, low sectioning
+# disk pos 1, high/fine sectioning = low signal
 DSKPOS1 = 0x01
-# disk pos 2, mid sectioning
+# disk pos 2, mid sectioning = mid signal
 DSKPOS2 = 0x02
-# disk pos 3, high sectioning
+# disk pos 3, low/coarse sectioning = high signal
 DSKPOS3 = 0x03
 # An error has occurred in setting slide position (end stops not detected)
 DSKERR = 0xFF
