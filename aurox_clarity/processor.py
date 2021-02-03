@@ -229,6 +229,10 @@ class Processor:
         self.defX = cv2.UMat(self.defXcpu)
         self.defY = cv2.UMat(self.defYcpu)
 
+    def get_deforms(self) -> typing.Tuple[np.ndarray, np.ndarray]:
+        """Get the deformation maps obtained by the calibration step."""
+        return (self.defXcpu, self.defYcpu)
+
     def process(
         self, img: np.ndarray, sub_factor: typing.Optional[float] = 1.0
     ):

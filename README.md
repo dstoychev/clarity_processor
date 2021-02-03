@@ -88,6 +88,7 @@ The class provides several methods that differ in their inputs and algorithms:
 * `process_gpu3()`: takes 1 combined Numpy array, converts it to two cv2.UMat images, and then performs scaled addition
 * `process_cpu()`: takes 1 combined Numpy array and performs scaled subtraction
 * `process_cpu1()`: takes 1 combined Numpy array and performs scaled addition
+* `get_deforms()`: returns as Numpy arrays the deformation maps used for matching of left and right images
 
 The performance of these different methods can be benchmarked with the `opencv_test` module in the `tests` directory. On a macbook pro with i7 processor at 2.2GHz and Intel Iris Pro graphics, the calibration calculation takes 1.2 secs (this only needs to be done at initialisation) and then processing individual images takes about 7.5ms. We have some evidence that this final processing step is quicker in C++ (~1ms) so ultimately it might be worth rewriting the processing step using the opencv C++ library directly. Some other processing methods have been added that show a significant (~3x) speed-up on this. Basically this is all depends on how the data to be processed is converted to the opencv UMat class for processing. The UMat class encompases data that is stored in GPU memory and will be processed using OPENCL. Different routines might see different speed-up depending on the hardware used.
  
@@ -112,4 +113,6 @@ ctrl.setCalibrationLED(aurox_clarity.controller.CALOFF)
 img = take_image()
 
 confocal_img = proc.process(img)
+
+deform_X, deform_Y = proc.get_deforms()
 ```
