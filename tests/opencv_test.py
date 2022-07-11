@@ -6,7 +6,7 @@ import time
 N=100
 
 # Try first calibration image
-img = cv2.imread('calib_h.tiff',cv2.IMREAD_ANYDEPTH)
+img = cv2.imread('tests/calib_h.tiff',cv2.IMREAD_ANYDEPTH)
 # img = cv2.imread('calibration_0.png',cv2.IMREAD_GRAYSCALE)
 cv2.imshow('input image',img)
 
@@ -30,7 +30,7 @@ result=cv2.multiply(res,100)
 cv2.imshow('Registered and subtracted image',result)
 
 # Try second test calibration image
-img2 = cv2.imread('calib_rot_h.tiff',cv2.IMREAD_ANYDEPTH)
+img2 = cv2.imread('tests/calib_rot_h.tiff',cv2.IMREAD_ANYDEPTH)
 e0 = cv2.getTickCount()
 cp2 = cproc.Processor(img2)
 e1 = cv2.getTickCount()
